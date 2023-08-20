@@ -1,5 +1,5 @@
 module.exports = async (bot) => {
-  const { execSync } = require("child_process");
+  const { exec } = require("child_process");
   const mysql = require("mysql2/promise");
 
   const dbConfig = {
@@ -24,9 +24,16 @@ module.exports = async (bot) => {
     for (const db of databases) {
       console.log(`Dumping database: ${db}`);
       const dumpCommand = `mysqldump --host=${dbConfig.host} --user=${dbConfig.user} --password=${dbConfig.password} --databases ${db} > ./temp/${db}.sql`;
-      await execSync(dumpCommand);
-      bot.telegram.sendDocument(process.env.DATA_CHAT_ID, {
-        source: `./temp/${db}.sql`,
+      exec(dumpCommand, (err, stdout, stderr) => {
+        if (err) {
+          console.error(`Error creating backup ${db}`);
+          console.log(err);
+        } else {
+          console.log(`Backup created successfully ${db}`);
+          bot.telegram.sendDocument(process.env.DATA_CHAT_ID, {
+            source: `./temp/${db}.sql`,
+          });
+        }
       });
     }
   } catch (error) {
