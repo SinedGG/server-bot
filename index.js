@@ -1,13 +1,13 @@
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
 const bot = new Telegraf(process.env.TG_TOKEN);
+const schedule = require("node-schedule");
 
 const backup = require("./modules/dbBackup");
 
-backup(bot);
-setInterval(() => {
+schedule.scheduleJob("0 */6 * * *", () => {
   backup(bot);
-}, 6 * 60 * 60 * 1000);
+});
 
 require("./modules/errLog")(bot);
 
