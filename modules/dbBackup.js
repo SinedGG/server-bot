@@ -1,5 +1,6 @@
 module.exports = async (bot) => {
-  const { exec } = require("child_process");
+  const util = require("util");
+  const exec = util.promisify(require("child_process").exec);
   const mysql = require("mysql2/promise");
 
   const dbConfig = {
@@ -24,17 +25,22 @@ module.exports = async (bot) => {
     for (const db of databases) {
       console.log(`Dumping database: ${db}`);
       const dumpCommand = `mysqldump --host=${dbConfig.host} --user=${dbConfig.user} --password=${dbConfig.password} --databases ${db} > ./temp/${db}.sql`;
-      exec(dumpCommand, (err, stdout, stderr) => {
-        if (err) {
+      try {
+        const { stdout, stderr } = await exec(dumpCommand);
+
+        if (stderr) {
           console.error(`Error creating backup ${db}`);
-          console.log(err);
+          console.error(stderr);
         } else {
           console.log(`Backup created successfully ${db}`);
-          bot.telegram.sendDocument(process.env.DATA_CHAT_ID, {
+          await bot.telegram.sendDocument(process.env.DATA_CHAT_ID, {
             source: `./temp/${db}.sql`,
           });
         }
-      });
+      } catch (err) {
+        console.error(`Error creating backup ${db}`);
+        console.error(err);
+      }
     }
   } catch (error) {
     console.error("Error:", error);
