@@ -28,7 +28,12 @@ module.exports = async (bot) => {
       try {
         const { stdout, stderr } = await exec(dumpCommand);
 
-        if (stderr) {
+        if (
+          stderr &&
+          !stderr.includes(
+            "Using a password on the command line interface can be insecure"
+          )
+        ) {
           console.error(`Error creating backup ${db}`);
           console.error(stderr);
         } else {
