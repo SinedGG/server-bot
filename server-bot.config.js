@@ -2,12 +2,9 @@ module.exports = {
   apps: [
     {
       name: "server-bot",
-      cwd: "/home/ubuntu/pm/server-bot",
-      script: "index.js",
+      cwd: "/var/pm2/apps/server-bot",
       watch: true,
-      watch_delay: 5000,
       log_date_format: "YYYY-MM-DD HH:mm Z",
-      ignore_watch: ["temp"],
 
       env: {
         TG_TOKEN: "",
